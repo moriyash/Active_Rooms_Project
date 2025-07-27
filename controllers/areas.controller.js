@@ -21,15 +21,26 @@ exports.getAreaById = async (req, res) => {
   }
 };
 
+// Get area by InsideOf
+exports.getAreaByInsideOf = async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT * FROM areas WHERE inside_of = ?', [req.params.inside_of]);
+    if (rows.length === 0) return res.status(404).json({ error: 'Area not found' });
+    res.json(rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch area' });
+  }
+};
+
 // Create new area
 exports.createArea = async (req, res) => {
   try {
-    const { name, area_type, image_path, inside_of, coordinates, is_active, description, restriction } = req.body;
+    const { name, area_type, image_path, inside_of, description } = req.body;
 
     const [result] = await pool.query(
-      `INSERT INTO areas (name, area_type, image_path, inside_of, coordinates, is_active, description, restriction)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      [name, area_type, image_path, inside_of, JSON.stringify(coordinates), is_active, description, restriction]
+      `INSERT INTO areas (name, area_type, image_path, inside_of, description)
+       VALUES (?, ?, ?, ?, ?)`,
+      [name, area_type, image_path, inside_of, description]
     );
 
     res.status(201).json({ id: result.insertId, message: 'Area created successfully' });
@@ -43,12 +54,12 @@ exports.createArea = async (req, res) => {
 // Update area
 exports.updateArea = async (req, res) => {
   try {
-    const { name, area_type, image_path, inside_of, coordinates, is_active, description, restriction } = req.body;
+    const { name, area_type, image_path, inside_of, description } = req.body;
 
     const [result] = await pool.query(
-      `UPDATE areas SET name=?, area_type=?, image_path=?, inside_of=?, coordinates=?, is_active=?, description=?, restriction=?
+      `UPDATE areas SET name=?, area_type=?, image_path=?, inside_of=?, description=?
        WHERE id = ?`,
-      [name, area_type, image_path, inside_of, JSON.stringify(coordinates), is_active, description, restriction, req.params.id]
+      [name, area_type, image_path, inside_of, description, req.params.id]
     );
 
     if (result.affectedRows === 0) return res.status(404).json({ error: 'Area not found' });

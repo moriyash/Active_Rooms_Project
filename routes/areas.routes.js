@@ -4,6 +4,7 @@ const areasController = require('../controllers/areas.controller');
 
 router.get('/', areasController.getAllAreas);
 router.get('/:id', areasController.getAreaById);
+router.get('/:inside_of', areasController.getAreaByInsideOf);
 router.post('/', areasController.createArea);
 router.put('/:id', areasController.updateArea);
 router.delete('/:id', areasController.deleteArea);
